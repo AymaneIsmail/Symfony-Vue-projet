@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+ 
+
+<h1>${message}</h1>
+  {% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible ">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        {{ message }}
+    </div>
+    {% endfor %}
+       {% for message in app.flashes('delete') %}
+    <div class="alert alert-danger alert-dismissible ">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        {{ message }}
+    </div>
+    {% endfor %}
+
+{#
+Boutton pour lancer la function addNew qui envoie une rêquete ajax à la page de création d'une recette  
+<button type="button" class="btn btn-primary mt-4" @click="ajaxEditRecette">Nouvelle recette</button> 
+#}
+<a class="btn btn-primary mt-4" href="http://localhost:8000/recette/new">Nouvelle recette</a>
+
+<table class="table mt-4">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Nom</th>
+      <th scope="col">Ingrédient</th>
+    </tr>
+  </thead>
+  <tbody>
+  {# Liste récuperer en ajax sur la page recette/show #}
+    <tr v-for:="recette in recettes" :key="recette.id">
+    
+      <td>${recette.id}</td>
+      <td>${recette.nom}</td>
+      <td>${recette.ingredient}</td>
+      <td><a class="btn btn-primary" v-bind:href="edit_url + recette.id">Modifier</a></td>
+      <td><a class="btn btn-danger" v-bind:href="delete_url + recette.id" @click="delte">Supprimer</a></td>
+    </tr>
+  </tbody>
+</table>
+
+{% endblock %}
+
+{% block javascripts %}
+
+<script>
+  const { createApp } = Vue
+  createApp({
+    data() {
+      return {
+        message: 'Hello Vue!',
+        recettes: null,
+        edit_url: 'http://localhost:8000/recette/edit/',
+        delete_url: 'http://localhost:8000/recette/delete/',
+      }
+    },
+    delimiters: ["${","}"],
+    methods:  {
+      {# async ajaxEditRecette(){
+        const response = await fetch("http://localhost:8000/recette/new", {
+          headers: {
+            'Access-Control-Allow-Origin' : '*',
+          },
+          method: 'POST'
+          })
+        const data = await response.text()
+        console.log(data)
+      } #}
+    },
+    async created(){
+      const response = await fetch("http://localhost:8000/recette/show")
+      const data = await response.json()
+      this.recettes = data
+    },
+  }).mount('#app')
+</script>      
+{% endblock %}
